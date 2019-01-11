@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Narration\Http;
 
-use function GuzzleHttp\Psr7\str;
 use ReflectionClass;
 use Symfony\Component\Finder\Finder;
 
@@ -22,6 +21,11 @@ use Symfony\Component\Finder\Finder;
  */
 final class RoutesFinder
 {
+    /**
+     * Holds the php declared classes.
+     *
+     * @var string[]|null
+     */
     private static $declaredClasses;
 
     /**
@@ -29,24 +33,19 @@ final class RoutesFinder
      *
      * @todo  Remove symfony finder dependency.
      *
-     * @return array
-     *
-     * @throws \ReflectionException
+     * @return \Narration\Http\Route[]
      */
     public function find(string $path): array
     {
         $path = realpath($path);
 
-        $requestHandlersClass =
-            array_values(array_filter($this->getProjectClasses($path), function (string $class) use ($path) {
-                $fileName = (new ReflectionClass($class))->getFileName() ?: '';
+        $requestHandlersClass = array_filter($this->getProjectClasses($path), function (string $class) use ($path) {
+            $fileName = (new ReflectionClass($class))->getFileName() ?: '';
 
-                return (substr($fileName, 0, strlen($path)) === $path);
-            }));
+            return strpos($fileName, $path) === 0;
+        });
 
-        $requestHandlersClass = array_reverse($requestHandlersClass);
-
-        foreach ($requestHandlersClass as $key => $requestHandlerClass) {
+        return array_map(function ($requestHandlerClass) use ($path) {
             $reflector = new ReflectionClass($requestHandlerClass);
             $fileName = $reflector->getFileName();
             $relative = str_replace($path, '', $fileName);
@@ -59,10 +58,11 @@ final class RoutesFinder
             if (empty($url)) {
                 $url = '/';
             }
-            $routes[$url] = [$verb, $requestHandlerClass];
-        }
 
-        return $routes;
+            $routes[$url] = [$verb, $requestHandlerClass];
+
+            return new Route($requestHandlerClass, $url, $verb);
+        }, $requestHandlersClass);
     }
 
     /**

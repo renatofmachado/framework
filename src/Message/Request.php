@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * This file is part of NunoMaduro SkeletonPhp.
+ * This file is part of Narration Framework.
  *
  * (c) Nuno Maduro <enunomaduro@gmail.com>
  *
@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Narration\Http\Message;
 
-use Zend\Diactoros\ServerRequestFactory;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Zend\Diactoros\ServerRequestFactory;
 
 final class Request implements ServerRequestInterface
 {

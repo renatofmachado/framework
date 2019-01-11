@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * This file is part of NunoMaduro SkeletonPhp.
+ * This file is part of Narration Framework.
  *
  * (c) Nuno Maduro <enunomaduro@gmail.com>
  *
@@ -22,14 +22,14 @@ use Psr\Http\Message\ServerRequestInterface;
 final class Dispatcher
 {
     /**
-     * @var array
+     * @var \Narration\Http\Route[]
      */
     private $routes;
 
     /**
      * Dispatcher constructor.
      *
-     * @param array $routes
+     * @param \Narration\Http\Route[] $routes
      */
     public function __construct(array $routes)
     {
@@ -43,21 +43,17 @@ final class Dispatcher
      */
     public function dispatch(ServerRequestInterface $request): ResponseInterface
     {
-        // Create the routing dispatcher
         $fastRouteDispatcher = \FastRoute\simpleDispatcher(function (\FastRoute\RouteCollector $r) {
             foreach ($this->routes as $url => $route) {
-                $r->{$route[0]}($url, $route[1]);
+                $r->{$route->getVerb()}($route->getUrl(), $route->getRequestHandlerClass());
             }
         });
 
         $dispatcher = new \Middlewares\Utils\Dispatcher([
             new \Middlewares\FastRoute($fastRouteDispatcher),
-            //Handle the route
             new \Middlewares\RequestHandler(),
         ]);
 
-        $response = $dispatcher->dispatch($request);
-
-        return $response;
+        return $dispatcher->dispatch($request);
     }
 }
