@@ -17,5 +17,4 @@ use Psr\Http\Message\ServerRequestInterface;
 
 final class Request extends \GuzzleHttp\Psr7\ServerRequest
 {
-
 }

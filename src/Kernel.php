@@ -15,25 +15,43 @@ namespace Narration\Http;
 
 final class Kernel
 {
-    public static function fromPath(string $path)
+    /**
+     * The dispatcher instance.
+     *
+     * @var \Narration\Http\Dispatcher
+     */
+    private $dispatcher;
+
+    /**
+     * Creates a new Kernel instance.
+     *
+     * @internal
+     *
+     * @param \Narration\Http\Dispatcher $dispatcher
+     */
+    public function __construct(Dispatcher $dispatcher)
     {
-        return new self();
+        $this->dispatcher = $dispatcher;
+    }
+
+    /**
+     * Acts as static factory method.
+     *
+     * @param string $path
+     * @return \Narration\Http\Kernel
+     *
+     * @throws \ReflectionException
+     */
+    public static function fromPath(string $path): self
+    {
+        $routes = (new RoutesFinder())->find($path);
+
+        return new self(new Dispatcher($routes));
     }
 
     public function handle($request)
     {
-        // Create the routing dispatcher
-        $fastRouteDispatcher = \FastRoute\simpleDispatcher(function (\FastRoute\RouteCollector $r) {
-            $r->get('/', \Application\Http\RequestHandlers\Get::class);
-        });
-
-        $dispatcher = new \Middlewares\Utils\Dispatcher([
-            new \Middlewares\FastRoute($fastRouteDispatcher),
-            //Handle the route
-            new \Middlewares\RequestHandler(),
-        ]);
-
-        $response = $dispatcher->dispatch($request);
+        $response = $this->dispatcher->dispatch($request);
 
         return $response;
     }
