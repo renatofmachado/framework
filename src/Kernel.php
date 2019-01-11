@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Narration\Http;
 
+use Narration\Http\Middleware\MiddlewareBeforeDispatcher;
+
 final class Kernel
 {
     public static function fromPath(string $path)
@@ -27,11 +29,19 @@ final class Kernel
             $r->get('/', \Application\Http\RequestHandlers\Get::class);
         });
 
-        $dispatcher = new \Middlewares\Utils\Dispatcher([
+        $middlewareStack = (new MiddlewareStack(
+            new \Application\Http\RequestHandlers\Get()
+        ))->addBefore([
             new \Middlewares\FastRoute($fastRouteDispatcher),
             //Handle the route
             new \Middlewares\RequestHandler(),
         ]);
+
+        echo '<pre>';
+        var_dump($middlewareStack->ordered());
+        die();
+
+        $dispatcher = new \Middlewares\Utils\Dispatcher($middlewareStack->ordered());
 
         $response = $dispatcher->dispatch($request);
 
