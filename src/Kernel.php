@@ -37,10 +37,6 @@ final class Kernel
             new \Middlewares\RequestHandler(),
         ]);
 
-        echo '<pre>';
-        var_dump($middlewareStack->ordered());
-        die();
-
         $dispatcher = new \Middlewares\Utils\Dispatcher($middlewareStack->ordered());
 
         $response = $dispatcher->dispatch($request);
