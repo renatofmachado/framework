@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Narration\Http;
 
+use function GuzzleHttp\Psr7\str;
 use ReflectionClass;
 use Symfony\Component\Finder\Finder;
 
@@ -43,15 +44,17 @@ final class RoutesFinder
                 return (substr($fileName, 0, strlen($path)) === $path);
             }));
 
+        $requestHandlersClass = array_reverse($requestHandlersClass);
+
         foreach ($requestHandlersClass as $key => $requestHandlerClass) {
             $reflector = new ReflectionClass($requestHandlerClass);
             $fileName = $reflector->getFileName();
-            $parts = explode($path, $fileName);
-            $end = end($parts);
+            $relative = str_replace($path, '', $fileName);
+            $parts = explode('/', $relative);
 
-            $url = explode(' / ', $end);
-            $verb = strtolower(array_pop($url));
-            $verb = str_replace(['/', '.php'], '', $verb);
+            $verb = end($parts);
+            $url = strtolower(str_replace($verb, '', $relative));
+            $verb = str_replace(['/', '.php'], '', strtolower($verb));
 
             if (empty($url)) {
                 $url = '/';
