@@ -6,28 +6,54 @@ namespace Narration\Http;
 
 use Narration\Http\Contracts\AfterRequestHandlingInterface;
 use Narration\Http\Contracts\BeforeRequestHandlingInterface;
+use Narration\Http\Contracts\Middleware;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class MiddlewareStack
+abstract class MiddlewareStack implements MiddlewareInterface
 {
-    protected $before = [];
+    protected $stack = [];
 
-    protected $after = [];
-
-    protected $handler;
-
-    public function __construct(RequestHandlerInterface $requestHandler)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $this->handler = $requestHandler;
+        if (class_exists($className = $request->getAttribute('request-handler'))) {
+            $request = $this->handleMiddlewareForRequestHandler($className, $request);
+        }
+
+        return $handler->handle($request);
     }
 
-    public function ordered() : array
+    protected function handleMiddlewareForRequestHandler(string $classname, ServerRequestInterface $request)
     {
-        return array_merge(
-            $this->before,
-            $this->getRequestHandlerMiddleware(),
-            $this->after
-        );
+        $this->setMiddlewareToResolve($classname);
+
+        return $this->run($request);
+    }
+
+    protected function run(ServerRequestInterface $request)
+    {
+        foreach ($this->stack as $middleware) {
+            if ($middleware instanceof Middleware) {
+                $middleware->handle($request, function (ServerRequestInterface $new) use (&$request) {
+
+                    foreach ($new->getAttributes() as $key => $value) {
+                        $request = $request->withAttribute($key, $value);
+                    }
+
+                    return $request;
+                });
+            } 
+        }
+
+        return $request;
+    }
+
+    protected function setMiddlewareToResolve(string $requestHandler)
+    {
+        $this->handler = $this->newInstance($requestHandler);
+        $this->stack = $this->getRequestHandlerMiddleware();
     }
 
     protected function getRequestHandlerMiddleware() : array
@@ -37,8 +63,12 @@ class MiddlewareStack
             $middleware = $this->instantiate($this->handler->middleware);
         }
 
-        return $this->sort($middleware);
+        return $this->sort(
+            $this->filter($middleware)
+        );
     }
+
+    abstract function filter(array $middlewares) : array;
 
     protected function sort(array $middlewares) : array
     {
@@ -59,29 +89,12 @@ class MiddlewareStack
     protected function instantiate(array $items) : array
     {
         return array_map(function ($middlewareClass) {
-            return new $middlewareClass(); // TODO: Dependency Injection when possible.
+            return $this->newInstance($middlewareClass);
         }, $items);
     }
 
-    /**
-     * @param array $before
-     * @return MiddlewareStack
-     */
-    public function addBefore(array $before) : self
+    protected function newInstance($class)
     {
-        $this->before = array_merge($this->before, $before);
-
-        return $this;
-    }
-
-    /**
-     * @param array $after
-     * @return MiddlewareStack
-     */
-    public function addAfter(array $after) : self
-    {
-        $this->after = array_merge($this->after, $after);
-
-        return $this;
+        return new $class();
     }
 }
