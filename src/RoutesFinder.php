@@ -29,11 +29,11 @@ final class RoutesFinder
     private static $declaredClasses;
 
     /**
-     * @param  string $path
-     *
-     * @todo  Remove symfony finder dependency.
+     * @param string $path
      *
      * @return \Narration\Http\Route[]
+     *
+     * @todo Remove symfony dependency.
      */
     public function find(string $path): array
     {
@@ -66,7 +66,7 @@ final class RoutesFinder
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     private function getProjectClasses(string $in): array
     {

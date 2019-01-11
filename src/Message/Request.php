@@ -20,17 +20,9 @@ use Zend\Diactoros\ServerRequestFactory;
 
 final class Request implements ServerRequestInterface
 {
-    /**
-     * @var \Psr\Http\Message\ServerRequestInterface
-     */
     private $baseRequest;
 
-    /**
-     * @param \Psr\Http\Message\ServerRequestInterface $baseRequest
-     *
-     * @internal
-     */
-    public function __construct(ServerRequestInterface $baseRequest)
+    private function __construct(ServerRequestInterface $baseRequest)
     {
         $this->baseRequest = $baseRequest;
     }
@@ -295,11 +287,8 @@ final class Request implements ServerRequestInterface
         return $this;
     }
 
-    /**
-     * @return \Psr\Http\Message\ServerRequestInterface
-     */
     public static function capture(): ServerRequestInterface
     {
-        return ServerRequestFactory::fromGlobals();
+        return new self(ServerRequestFactory::fromGlobals());
     }
 }

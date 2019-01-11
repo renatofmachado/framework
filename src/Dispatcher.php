@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Narration\Http;
 
+use Narration\Http\Middleware\AfterHandlerStack;
+use Narration\Http\Middleware\BeforeHandlerStack;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -27,8 +29,6 @@ final class Dispatcher
     private $routes;
 
     /**
-     * Dispatcher constructor.
-     *
      * @param \Narration\Http\Route[] $routes
      */
     public function __construct(array $routes)
@@ -51,6 +51,7 @@ final class Dispatcher
 
         $dispatcher = new \Middlewares\Utils\Dispatcher([
             new \Middlewares\FastRoute($fastRouteDispatcher),
+            new BeforeHandlerStack(),
             new \Middlewares\RequestHandler(),
         ]);
 
