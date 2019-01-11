@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Narration\Http;
 
+use Narration\Http\Middleware\MiddlewareBeforeDispatcher;
+
 final class Kernel
 {
     /**
