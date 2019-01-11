@@ -13,33 +13,55 @@ declare(strict_types=1);
 
 namespace Narration\Http;
 
-use Narration\Http\Middleware\MiddlewareBeforeDispatcher;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 final class Kernel
 {
+    /**
+     * The dispatcher instance.
+     *
+     * @var \Narration\Http\Dispatcher
+     */
     private $dispatcher;
 
+    /**
+     * Kernel constructor.
+     *
+     * @param \Narration\Http\Dispatcher $dispatcher
+     */
     private function __construct(Dispatcher $dispatcher)
     {
         $this->dispatcher = $dispatcher;
     }
 
+    /**
+     * Creates a Kernel instances from the given path.
+     *
+     * @param  string $path
+     *
+     * @return \Narration\Http\Kernel
+     */
     public static function fromPath(string $path): self
     {
-        $routes = (new RoutesFinder())->find($path);
+        $routes = (new RouteFinder())->find($path.'/RequestHandlers');
 
-        return new self(new Dispatcher($routes));
+        $middleware = (new MiddlewareFinder())->find($path.'/Middleware');
+
+        return new self(new Dispatcher($routes, $middleware));
     }
 
-    public function handle($request)
+    /**
+     * Handles the given request.
+     *
+     * @param  \Psr\Http\Message\ServerRequestInterface $request
+     *
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $response = $this->dispatcher->dispatch($request);
 
         return $response;
-    }
-
-    public function terminate(): void
-    {
-        // ..
     }
 }

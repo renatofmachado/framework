@@ -9,12 +9,34 @@ namespace Narration\Http;
  */
 final class Route
 {
+    /**
+     * The request handler class name.
+     *
+     * @var string
+     */
     private $requestHandlerClass;
 
+    /**
+     * The url.
+     *
+     * @var string
+     */
     private $url;
 
+    /**
+     * The http verb.
+     *
+     * @var string
+     */
     private $verb;
 
+    /**
+     * Route constructor.
+     *
+     * @param string $requestHandlerClass
+     * @param string $url
+     * @param string $verb
+     */
     public function __construct(string $requestHandlerClass, string $url, string $verb)
     {
         $this->requestHandlerClass = $requestHandlerClass;
@@ -22,33 +44,33 @@ final class Route
         $this->verb = $verb;
     }
 
+    /**
+     * Returns the request handler class.
+     *
+     * @return string
+     */
     public function getRequestHandlerClass(): string
     {
         return $this->requestHandlerClass;
     }
 
-    public function setRequestHandlerClass(string $requestHandlerClass): void
-    {
-        $this->requestHandlerClass = $requestHandlerClass;
-    }
-
+    /**
+     * Returns the url.
+     *
+     * @return string
+     */
     public function getUrl(): string
     {
         return $this->url;
     }
 
-    public function setUrl(string $url): void
-    {
-        $this->url = $url;
-    }
-
+    /**
+     * Returns the verb.
+     *
+     * @return string
+     */
     public function getVerb(): string
     {
         return $this->verb;
-    }
-
-    public function setVerb($verb): void
-    {
-        $this->verb = $verb;
     }
 }

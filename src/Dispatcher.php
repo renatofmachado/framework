@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Narration\Http;
 
-use Narration\Http\Middleware\AfterHandlerStack;
-use Narration\Http\Middleware\BeforeHandlerStack;
+use Middlewares\FastRoute;
+use Middlewares\RequestHandler;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -29,11 +29,18 @@ final class Dispatcher
     private $routes;
 
     /**
-     * @param \Narration\Http\Route[] $routes
+     * @var string[]
      */
-    public function __construct(array $routes)
+    private $middleware;
+
+    /**
+     * @param \Narration\Http\Route[] $routes
+     * @param string[] $middleware
+     */
+    public function __construct(array $routes, array $middleware)
     {
         $this->routes = $routes;
+        $this->middleware = $middleware;
     }
 
     /**
@@ -49,11 +56,15 @@ final class Dispatcher
             }
         });
 
-        $dispatcher = new \Middlewares\Utils\Dispatcher([
-            new \Middlewares\FastRoute($fastRouteDispatcher),
-            new BeforeHandlerStack(),
-            new \Middlewares\RequestHandler(),
-        ]);
+        $middleware = [new FastRoute($fastRouteDispatcher)];
+
+        $middleware = array_merge($middleware, array_map(function ($middlewareClass) {
+            return new $middlewareClass;
+        }, $this->middleware));
+
+        $middleware[] = new RequestHandler();
+
+        $dispatcher = new \Middlewares\Utils\Dispatcher($middleware);
 
         return $dispatcher->dispatch($request);
     }

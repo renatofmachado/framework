@@ -1,7 +1,7 @@
 {
     "name": "narration/http",
-    "description": "A skeleton repository for my packages",
-    "keywords": ["php", "skeleton", "package"],
+    "description": "The Narration Http component.",
+    "keywords": ["narration", "php", "framework", "http", "component"],
     "license": "MIT",
     "authors": [
         {
