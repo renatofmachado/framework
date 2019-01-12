@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * This file is part of NunoMaduro SkeletonPhp.
+ * This file is part of Narration Framework.
  *
  * (c) Nuno Maduro <enunomaduro@gmail.com>
  *
@@ -11,24 +11,27 @@ declare(strict_types=1);
  *  file that was distributed with this source code.
  */
 
-namespace Narration\Http;
+namespace Narration\Framework\Http;
 
+use Narration\Framework\Composer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Narration\Framework\Container\ContainerFactory;
+use Narration\Framework\Container\InjectorFinder;
 
 final class Kernel
 {
     /**
      * The dispatcher instance.
      *
-     * @var \Narration\Http\Dispatcher
+     * @var \Narration\Framework\Http\Dispatcher
      */
     private $dispatcher;
 
     /**
      * Kernel constructor.
      *
-     * @param \Narration\Http\Dispatcher $dispatcher
+     * @param \Narration\Framework\Http\Dispatcher $dispatcher
      */
     private function __construct(Dispatcher $dispatcher)
     {
@@ -38,17 +41,23 @@ final class Kernel
     /**
      * Creates a Kernel instances from the given path.
      *
-     * @param  string $path
+     * @param  string $composerPath
      *
-     * @return \Narration\Http\Kernel
+     * @return \Narration\Framework\Http\Kernel
      */
-    public static function fromPath(string $path): self
+    public static function create(string $composerPath): self
     {
-        $routes = (new RouteFinder())->find($path.'/RequestHandlers');
+        $composer = Composer::fromPath($composerPath);
 
-        $middleware = (new MiddlewareFinder())->find($path.'/Middleware');
+        $routes = (new RouteFinder())->find($composer->getRequestHandlersPath());
 
-        return new self(new Dispatcher($routes, $middleware));
+        $middleware = (new MiddlewareFinder())->find($composer->getMiddlewarePath());
+
+        $injectors = (new InjectorFinder())->find($composer->getInjectorsPath());
+
+        $containerFactory = new ContainerFactory($injectors);
+
+        return new self(new Dispatcher($containerFactory, $routes, $middleware));
     }
 
     /**

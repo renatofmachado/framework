@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * This file is part of NunoMaduro SkeletonPhp.
+ * This file is part of Narration Framework.
  *
  * (c) Nuno Maduro <enunomaduro@gmail.com>
  *
@@ -11,7 +11,7 @@ declare(strict_types=1);
  *  file that was distributed with this source code.
  */
 
-namespace Narration\Http;
+namespace Narration\Framework;
 
 use ReflectionClass;
 use Symfony\Component\Finder\Finder;
@@ -32,11 +32,11 @@ final class ClassFinder
      * Find classes on the given path from the given type.
      *
      * @param string $path
-     * @param string $type
+     * @param string|null $type
      *
      * @return string[]
      */
-    public function find(string $path, string $type): array
+    public function find(string $path, string $type = null): array
     {
         $path = (string) realpath($path);
 
@@ -45,7 +45,7 @@ final class ClassFinder
 
             $fileName = $reflection->getFileName() ?: '';
 
-            return strpos($fileName, $path) === 0 && $reflection->implementsInterface($type);
+            return strpos($fileName, $path) === 0 && ($type === null || $reflection->implementsInterface($type));
         });
     }
 

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * This file is part of NunoMaduro SkeletonPhp.
+ * This file is part of Narration Framework.
  *
  * (c) Nuno Maduro <enunomaduro@gmail.com>
  *
@@ -11,12 +11,10 @@ declare(strict_types=1);
  *  file that was distributed with this source code.
  */
 
-namespace Narration\Http;
+namespace Narration\Framework\Http;
 
+use Narration\Framework\ClassFinder;
 use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use ReflectionClass;
-use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
@@ -24,14 +22,14 @@ use Symfony\Component\Finder\Finder;
 final class MiddlewareFinder
 {
     /**
-     * @var \Narration\Http\ClassFinder
+     * @var \Narration\Framework\ClassFinder
      */
     private $classFinder;
 
     /**
      * RouteFinder constructor.
      *
-     * @param \Narration\Http\ClassFinder $classFinder
+     * @param \Narration\Framework\ClassFinder $classFinder
      */
     public function __construct(ClassFinder $classFinder = null)
     {

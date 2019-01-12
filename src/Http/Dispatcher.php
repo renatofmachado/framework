@@ -11,10 +11,12 @@ declare(strict_types=1);
  *  file that was distributed with this source code.
  */
 
-namespace Narration\Http;
+namespace Narration\Framework\Http;
 
+use FastRoute\RouteCollector;
 use Middlewares\FastRoute;
 use Middlewares\RequestHandler;
+use Narration\Framework\Container\ContainerFactory;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -24,7 +26,12 @@ use Psr\Http\Message\ServerRequestInterface;
 final class Dispatcher
 {
     /**
-     * @var \Narration\Http\Route[]
+     * @var \Narration\Framework\Container\ContainerFactory
+     */
+    private $containerFactory;
+
+    /**
+     * @var \Narration\Framework\Http\Route[]
      */
     private $routes;
 
@@ -34,11 +41,15 @@ final class Dispatcher
     private $middleware;
 
     /**
-     * @param \Narration\Http\Route[] $routes
-     * @param string[] $middleware
+     * Dispatcher constructor.
+     *
+     * @param \Narration\Framework\Container\ContainerFactory $containerFactory
+     * @param array $routes
+     * @param array $middleware
      */
-    public function __construct(array $routes, array $middleware)
+    public function __construct(ContainerFactory $containerFactory, array $routes, array $middleware)
     {
+        $this->containerFactory = $containerFactory;
         $this->routes = $routes;
         $this->middleware = $middleware;
     }
@@ -50,7 +61,14 @@ final class Dispatcher
      */
     public function dispatch(ServerRequestInterface $request): ResponseInterface
     {
-        $fastRouteDispatcher = \FastRoute\simpleDispatcher(function (\FastRoute\RouteCollector $r) {
+        $definitions = [];
+
+        foreach ($this->routes as $url => $route) {
+            $definitions[$route->getRequestHandlerClass()] = null;
+        }
+        $container = $this->containerFactory->createContainer($definitions);
+
+        $fastRouteDispatcher = \FastRoute\simpleDispatcher(function (RouteCollector $r) {
             foreach ($this->routes as $url => $route) {
                 $r->{$route->getVerb()}($route->getUrl(), $route->getRequestHandlerClass());
             }
@@ -62,7 +80,7 @@ final class Dispatcher
             return new $middlewareClass;
         }, $this->middleware));
 
-        $middleware[] = new RequestHandler();
+        $middleware[] = new RequestHandler($container);
 
         $dispatcher = new \Middlewares\Utils\Dispatcher($middleware);
 

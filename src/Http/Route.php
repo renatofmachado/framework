@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Narration\Http;
+namespace Narration\Framework\Http;
 
 /**
  * @internal

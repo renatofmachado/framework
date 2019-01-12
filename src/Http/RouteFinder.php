@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * This file is part of NunoMaduro SkeletonPhp.
+ * This file is part of Narration Framework.
  *
  * (c) Nuno Maduro <enunomaduro@gmail.com>
  *
@@ -11,11 +11,11 @@ declare(strict_types=1);
  *  file that was distributed with this source code.
  */
 
-namespace Narration\Http;
+namespace Narration\Framework\Http;
 
+use Narration\Framework\ClassFinder;
 use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionClass;
-use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
@@ -23,14 +23,14 @@ use Symfony\Component\Finder\Finder;
 final class RouteFinder
 {
     /**
-     * @var \Narration\Http\ClassFinder
+     * @var \Narration\Framework\ClassFinder
      */
     private $classFinder;
 
     /**
      * RouteFinder constructor.
      *
-     * @param \Narration\Http\ClassFinder $classFinder
+     * @param \Narration\Framework\ClassFinder $classFinder
      */
     public function __construct(ClassFinder $classFinder = null)
     {
@@ -42,7 +42,7 @@ final class RouteFinder
      *
      * @param string $path
      *
-     * @return \Narration\Http\Route[]
+     * @return \Narration\Framework\Http\Route[]
      */
     public function find(string $path): array
     {
@@ -59,7 +59,7 @@ final class RouteFinder
             $verb = str_replace(['/', '.php'], '', strtolower($verb));
 
             if (empty($url)) {
-                $url = '/';
+                $url = '';
             }
 
             $routes[$url] = [$verb, $requestHandlerClass];
