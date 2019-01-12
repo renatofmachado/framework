@@ -50,14 +50,6 @@ final class Composer
     /**
      * @return string
      */
-    public function getContainerClass(): string
-    {
-        return $this->content['extra']['narration']['container-class'];
-    }
-
-    /**
-     * @return string
-     */
     public function getRequestHandlersPath(): string
     {
         return $this->content['extra']['narration']['request-handlers-path'];
