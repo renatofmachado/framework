@@ -58,11 +58,9 @@ final class RouteFinder
             $url = strtolower(str_replace($verb, '', $relative));
             $verb = str_replace(['/', '.php'], '', strtolower($verb));
 
-            if (empty($url)) {
+            if ($url === '') {
                 $url = '';
             }
-
-            $routes[$url] = [$verb, $requestHandlerClass];
 
             return new Route($requestHandlerClass, $url, $verb);
         }, $this->classFinder->find($path, RequestHandlerInterface::class));

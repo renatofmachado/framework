@@ -43,9 +43,9 @@ final class Dispatcher
     /**
      * Dispatcher constructor.
      *
-     * @param \Narration\Framework\Container\ContainerFactory $containerFactory
-     * @param array $routes
-     * @param array $middleware
+     * @param  \Narration\Framework\Container\ContainerFactory $containerFactory
+     * @param  mixed[] $routes
+     * @param  mixed[] $middleware
      */
     public function __construct(ContainerFactory $containerFactory, array $routes, array $middleware)
     {
@@ -78,7 +78,7 @@ final class Dispatcher
 
         $middleware = [new FastRoute($fastRouteDispatcher)];
 
-        $middleware = array_merge($middleware, array_map(function ($middlewareClass) use ($container) {
+        $middleware = array_merge($middleware, array_map(function ($middlewareClass) {
             return new $middlewareClass();
         }, $this->middleware));
 

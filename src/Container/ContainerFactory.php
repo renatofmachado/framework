@@ -29,7 +29,7 @@ final class ContainerFactory
     /**
      * ContainerFactory constructor.
      *
-     * @param  array $injectors
+     * @param  string[] $injectors
      */
     public function __construct(array $injectors)
     {
@@ -37,7 +37,7 @@ final class ContainerFactory
     }
 
     /**
-     * @param  array $definitions
+     * @param  mixed[] $definitions
      *
      * @return \Psr\Container\ContainerInterface
      */
@@ -50,9 +50,9 @@ final class ContainerFactory
         }
 
         foreach ($definitions as $abstract => $concrete) {
-            if (is_string($concrete)) {
+            if (is_string($concrete) && method_exists($concrete, '__construct')) {
                 $reflector = new \ReflectionMethod($concrete, '__construct');
-                $arguments = array_map(function ($param) use ($container) {
+                $arguments = array_map(function ($param) {
                     return $param->getClass()->getName();
                 }, $reflector->getParameters());
 

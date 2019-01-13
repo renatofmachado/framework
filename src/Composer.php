@@ -26,7 +26,7 @@ final class Composer
     /**
      * Composer constructor.
      *
-     * @param array $content
+     * @param mixed[] $content
      */
     public function __construct(array $content)
     {
