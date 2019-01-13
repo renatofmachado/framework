@@ -64,20 +64,22 @@ final class Dispatcher
         $definitions = [];
 
         foreach ($this->routes as $url => $route) {
-            $definitions[$route->getRequestHandlerClass()] = null;
+            $definitions[$route->getRequestHandlerClass()] = $route->getRequestHandlerClass();
         }
         $container = $this->containerFactory->createContainer($definitions);
 
-        $fastRouteDispatcher = \FastRoute\simpleDispatcher(function (RouteCollector $r) {
+        $fastRouteDispatcher = \FastRoute\simpleDispatcher(function (RouteCollector $r) use ($container) {
             foreach ($this->routes as $url => $route) {
-                $r->{$route->getVerb()}($route->getUrl(), $route->getRequestHandlerClass());
+                $requestHandler = $container->get($route->getRequestHandlerClass());
+
+                $r->{$route->getVerb()}($route->getUrl(), $requestHandler);
             }
         });
 
         $middleware = [new FastRoute($fastRouteDispatcher)];
 
-        $middleware = array_merge($middleware, array_map(function ($middlewareClass) {
-            return new $middlewareClass;
+        $middleware = array_merge($middleware, array_map(function ($middlewareClass) use ($container) {
+            return new $middlewareClass();
         }, $this->middleware));
 
         $middleware[] = new RequestHandler($container);

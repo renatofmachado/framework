@@ -50,7 +50,16 @@ final class ContainerFactory
         }
 
         foreach ($definitions as $abstract => $concrete) {
-            $container->add($abstract, $concrete);
+            if (is_string($concrete)) {
+                $reflector = new \ReflectionMethod($concrete, '__construct');
+                $arguments = array_map(function ($param) use ($container) {
+                    return $param->getClass()->getName();
+                }, $reflector->getParameters());
+
+                $container->add($abstract, $concrete)->addArguments($arguments);
+            } else {
+                $container->add($abstract, $concrete);
+            }
         }
 
         return $container;

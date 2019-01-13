@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Narration\Framework\Http\Message;
 
 use Psr\Http\Message\ResponseInterface;
+use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\JsonResponse;
 
 final class Response
@@ -30,5 +31,19 @@ final class Response
     public static function json(array $data = null, int $status = 200, array $headers = []): ResponseInterface
     {
         return new JsonResponse($data, $status, $headers);
+    }
+
+    /**
+     * Creates a new Html response.
+     *
+     * @param string $data
+     * @param int $status
+     * @param array $headers
+     *
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public static function html(string $html, int $status = 200, array $headers = []): ResponseInterface
+    {
+        return new HtmlResponse($html, $status, $headers);
     }
 }
